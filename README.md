@@ -6,6 +6,7 @@ A lambda triggered by our dr2-ingest Step Function once an OPEX package has been
 
 ## Environment Variables
 
-| Name | Description |
-|------|-------------|
-|      |             |
+| Name                   | Description                                |
+|------------------------|--------------------------------------------|
+| PRESERVICA_API_URL     | The Preservica API  url                    |
+| PRESERVICA_SECRET_NAME | The secret used to call the Preservica API |
