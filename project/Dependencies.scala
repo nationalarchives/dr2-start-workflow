@@ -8,7 +8,7 @@ object Dependencies {
   lazy val log4jTemplateJson = "org.apache.logging.log4j" % "log4j-layout-template-json" % logbackVersion
   lazy val lambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.2.2"
   lazy val lambdaJavaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.11.1"
-  lazy val mockito = "org.mockito" %% "mockito-scala" % "1.17.12"
+  lazy val mockito = "org.mockito" %% "mockito-scala" % "1.17.30"
   lazy val preservicaClient = "uk.gov.nationalarchives" %% "preservica-client-fs2" % "0.0.35"
   lazy val pureConfigCats = "com.github.pureconfig" %% "pureconfig-cats-effect" % pureConfigVersion
   lazy val pureConfig = "com.github.pureconfig" %% "pureconfig" % pureConfigVersion
