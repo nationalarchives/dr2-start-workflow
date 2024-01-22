@@ -31,7 +31,7 @@ class Lambda extends RequestStreamHandler {
   override def handleRequest(inputStream: InputStream, output: OutputStream, context: Context): Unit = {
     val inputString = inputStream.readAllBytes().map(_.toChar).mkString
     val input = read[Input](inputString)
-    val batchRef = input.executionId.split("-").take(2).mkString("-")
+    val batchRef = input.executionId.split("-").take(3).mkString("-")
     for {
       _ <- logger.info(Map("batchRef" -> batchRef))(s"Starting workflow ${input.workflowContextName} for $batchRef")
       workflowClient <- workflowClientIO
