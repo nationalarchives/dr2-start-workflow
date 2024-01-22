@@ -3,6 +3,8 @@ package uk.gov.nationalarchives
 import cats.effect._
 import cats.effect.unsafe.implicits.global
 import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
+import org.typelevel.log4cats.{LoggerName, SelfAwareStructuredLogger}
+import org.typelevel.log4cats.slf4j.Slf4jFactory
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 import pureconfig.module.catseffect.syntax._
@@ -17,6 +19,8 @@ import java.io.{InputStream, OutputStream}
 
 class Lambda extends RequestStreamHandler {
   private val configIo: IO[Config] = ConfigSource.default.loadF[IO, Config]()
+  implicit val loggerName: LoggerName = LoggerName("Start Workflow")
+  private val logger: SelfAwareStructuredLogger[IO] = Slf4jFactory.create[IO].getLogger
 
   lazy val workflowClientIO: IO[WorkflowClient[IO]] = configIo.flatMap { config =>
     Fs2Client.workflowClient(config.apiUrl, config.secretName)
@@ -27,8 +31,9 @@ class Lambda extends RequestStreamHandler {
   override def handleRequest(inputStream: InputStream, output: OutputStream, context: Context): Unit = {
     val inputString = inputStream.readAllBytes().map(_.toChar).mkString
     val input = read[Input](inputString)
+    val batchRef = input.executionId.split("-").take(2).mkString("-")
     for {
-      config <- configIo
+      _ <- logger.info(Map("batchRef" -> batchRef))(s"Starting workflow ${input.workflowContextName} for $batchRef")
       workflowClient <- workflowClientIO
       id <- workflowClient.startWorkflow(
         StartWorkflowRequest(
@@ -36,6 +41,7 @@ class Lambda extends RequestStreamHandler {
           parameters = List(Parameter("OpexContainerDirectory", s"opex/${input.executionId}"))
         )
       )
+      _ <- logger.info(Map("batchRef" -> batchRef))(s"Workflow ${input.workflowContextName} for $batchRef started")
     } yield output.write(write(StateOutput(id)).getBytes())
   }.unsafeRunSync()
 }
