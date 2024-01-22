@@ -43,7 +43,9 @@ class Lambda extends RequestStreamHandler {
       )
       _ <- logger.info(Map("batchRef" -> batchRef))(s"Workflow ${input.workflowContextName} for $batchRef started")
     } yield output.write(write(StateOutput(id)).getBytes())
-  }.unsafeRunSync()
+  }.onError(logLambdaError).unsafeRunSync()
+
+  private def logLambdaError(error: Throwable): IO[Unit] = logger.error(error)("Error running start workflow")
 }
 
 object Lambda {
