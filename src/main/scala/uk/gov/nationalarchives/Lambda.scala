@@ -19,7 +19,7 @@ import java.io.{InputStream, OutputStream}
 
 class Lambda extends RequestStreamHandler {
   private val configIo: IO[Config] = ConfigSource.default.loadF[IO, Config]()
-  implicit val loggerName: LoggerName = LoggerName("Start Workflow")
+  implicit val loggerName: LoggerName = LoggerName(sys.env("AWS_LAMBDA_FUNCTION_NAME"))
   private val logger: SelfAwareStructuredLogger[IO] = Slf4jFactory.create[IO].getLogger
 
   lazy val workflowClientIO: IO[WorkflowClient[IO]] = configIo.flatMap { config =>
@@ -32,8 +32,9 @@ class Lambda extends RequestStreamHandler {
     val inputString = inputStream.readAllBytes().map(_.toChar).mkString
     val input = read[Input](inputString)
     val batchRef = input.executionId.split("-").take(3).mkString("-")
+    val log = logger.info(Map("batchRef" -> batchRef))(_)
     for {
-      _ <- logger.info(Map("batchRef" -> batchRef))(s"Starting workflow ${input.workflowContextName} for $batchRef")
+      _ <- log(s"Starting workflow ${input.workflowContextName} for $batchRef")
       workflowClient <- workflowClientIO
       id <- workflowClient.startWorkflow(
         StartWorkflowRequest(
@@ -41,7 +42,7 @@ class Lambda extends RequestStreamHandler {
           parameters = List(Parameter("OpexContainerDirectory", s"opex/${input.executionId}"))
         )
       )
-      _ <- logger.info(Map("batchRef" -> batchRef))(s"Workflow ${input.workflowContextName} for $batchRef started")
+      _ <- log(s"Workflow ${input.workflowContextName} for $batchRef started")
     } yield output.write(write(StateOutput(id)).getBytes())
   }.onError(logLambdaError).unsafeRunSync()
 

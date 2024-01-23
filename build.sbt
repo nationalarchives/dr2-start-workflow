@@ -30,3 +30,5 @@ scalacOptions ++= Seq("-Wunused:imports", "-Werror")
   case _ => MergeStrategy.first
 }
 
+(Test / fork) := true
+(Test / envVars) := Map("AWS_LAMBDA_FUNCTION_NAME" -> "testfunction")
