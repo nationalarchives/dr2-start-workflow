@@ -21,7 +21,7 @@ class LambdaTest extends AnyFlatSpec with MockitoSugar {
     val inJson =
       s"""{
          |  "workflowContextName": "testContextName",
-         |  "executionId": "345"
+         |  "executionId": "TST-1234-345"
          |}""".stripMargin
     new ByteArrayInputStream(inJson.getBytes())
   }
@@ -56,7 +56,7 @@ class LambdaTest extends AnyFlatSpec with MockitoSugar {
 
     mockStartWorkflowLambda.verifyInvocationsAndArgumentsPassed(
       Some("testContextName"),
-      List(Parameter("OpexContainerDirectory", s"opex/345"))
+      List(Parameter("OpexContainerDirectory", s"opex/TST-1234-345"))
     )
     stateData.id should be(123)
   }
@@ -72,7 +72,7 @@ class LambdaTest extends AnyFlatSpec with MockitoSugar {
 
     mockStartWorkflowLambda.verifyInvocationsAndArgumentsPassed(
       Some("testContextName"),
-      List(Parameter("OpexContainerDirectory", s"opex/345"))
+      List(Parameter("OpexContainerDirectory", s"opex/TST-1234-345"))
     )
     ex.getMessage should equal("API has encountered an issue when calling startWorkflow")
   }
