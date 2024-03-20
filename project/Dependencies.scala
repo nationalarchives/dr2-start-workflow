@@ -1,6 +1,6 @@
 import sbt._
 object Dependencies {
-  lazy val logbackVersion = "2.23.0"
+  lazy val logbackVersion = "2.23.1"
   lazy val pureConfigVersion = "0.17.6"
 
   lazy val log4jSlf4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % logbackVersion
